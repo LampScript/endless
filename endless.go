@@ -15,18 +15,17 @@ import (
 	"sync"
 	"syscall"
 	"time"
-
 	// "github.com/fvbock/uds-go/introspect"
 )
 
 const (
-	PRE_SIGNAL = iota
-	POST_SIGNAL
+	PRE_SIGNAL  = iota //0
+	POST_SIGNAL        //1
 
-	STATE_INIT
-	STATE_RUNNING
-	STATE_SHUTTING_DOWN
-	STATE_TERMINATE
+	STATE_INIT          //2
+	STATE_RUNNING       //3
+	STATE_SHUTTING_DOWN //4
+	STATE_TERMINATE     //5
 )
 
 var (
@@ -396,6 +395,7 @@ unblock the srv.wg.Wait() in Serve() thus causing ListenAndServe(TLS) to
 return.
 */
 func (srv *endlessServer) hammerTime(d time.Duration) {
+	log.Println("enter hammerTime")
 	defer func() {
 		// we are calling srv.wg.Done() until it panics which means we called
 		// Done() when the counter was already at 0 and we're done.
@@ -453,13 +453,13 @@ func (srv *endlessServer) fork() (err error) {
 		env = append(env, fmt.Sprintf(`ENDLESS_SOCKET_ORDER=%s`, strings.Join(orderArgs, ",")))
 	}
 
-	// log.Println(files)
+	log.Println(env)
 	path := os.Args[0]
 	var args []string
 	if len(os.Args) > 1 {
 		args = os.Args[1:]
 	}
-
+	log.Printf("exec.Command(path, args...), path = %v, args = %v \n", path, args)
 	cmd := exec.Command(path, args...)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
